@@ -172,9 +172,9 @@ if __name__ == "__main__":
     prior_settings = []
     prior_names = []
     for a in np.linspace(0,1,11):
-        curr_prior = a*uninformed_priors + (1-a)*eb_priors
+        curr_prior = (1-a)*uninformed_priors + a*eb_priors
         prior_settings.append(curr_prior)
-        prior_names.append(a/10)
+        prior_names.append(np.round(a/10, 2))
         
     if args.mode=='test':
         data, snapshots = run_multiarmed_bandit_replenishment(kuairec_chosen,
