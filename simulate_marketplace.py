@@ -185,9 +185,25 @@ if __name__ == "__main__":
                                                               rho=args.exit_rate,
                                                               mkt_size=args.market_size,
                                                               id_name = prior_names[0])
-        np.save(f'sim_data_alpha_{id_name}.npy', data)
-        np.save(f'sim_snapshots_alpha_{id_name}.npy', snapshots)
+        np.save(f'sims/sim_data_alpha_{prior_names[0]}.npy', data)
+        np.save(f'sims/sim_snapshots_alpha_{prior_names[0]}.npy', snapshots)
     else:
-        pass
+        parallel = Parallel(n_jobs=11, verbose=10)
+        result_data = parallel(delayed(run_multiarmed_bandit_replenishment)(kuairec_chosen,
+                                                              sampled_videos,
+                                                              prior_settings[i],
+                                                              ts_action,
+                                                              timesteps=args.timestep,
+                                                              rho=args.exit_rate,
+                                                              mkt_size=args.market_size,
+                                                              id_name = prior_names[i]) \
+                                                              for in in range(len(prior_names)))
+        
+        result_data = list(result_data)
+        print(len(result_data))
+        for i in range(len(result_data)):
+            data, snapshots = result_data[i]
+            np.save(f'sims/sim_data_alpha_{prior_names[i]}.npy', data)
+            np.save(f'sims/sim_snapshots_alpha_{prior_names[i]}.npy', snapshots)            
     
         
