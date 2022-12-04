@@ -134,10 +134,10 @@ def run_multiarmed_bandit_replenishment(chosen_df,
     
     #rename everything by id name if given
     if id_name:
-        for k in helper.universe:
+        for k in list(helper.universe.keys())[:]:
             helper.universe[(k, id_name)] = helper.universe.pop(k)
             
-        for k in snapshot_dict:
+        for k in list(snapshot_dict.keys())[:]:
             snapshot_dict[(k, id_name)] = snapshot_dict.pop(k)
             
     return helper.universe, snapshot_dict
