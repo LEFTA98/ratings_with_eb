@@ -72,6 +72,7 @@ def run_multiarmed_bandit_replenishment(chosen_df,
                                         snapshot_start=None,
                                         snapshotting_prob=0.001,
                                         id_name=None):
+    print(f'simulation {id_name} beginning...')
     if not snapshot_start:
         snapshot_start = timesteps//5
     product_data = dict(zip(videos, [[] for _ in range(len(videos))]))
@@ -175,7 +176,7 @@ if __name__ == "__main__":
         prior_settings.append(curr_prior)
         prior_names.append(a/10)
         
-    if args.mode=='test':
+    if args.mode=='test'
         data, snapshots = run_multiarmed_bandit_replenishment(kuairec_chosen,
                                                               sampled_videos,
                                                               prior_settings[0],
