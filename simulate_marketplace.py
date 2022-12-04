@@ -174,7 +174,7 @@ if __name__ == "__main__":
     for a in np.linspace(0,1,11):
         curr_prior = (1-a)*uninformed_priors + a*eb_priors
         prior_settings.append(curr_prior)
-        prior_names.append(np.round(a/10, 2))
+        prior_names.append(np.round(a, 2))
         
     if args.mode=='test':
         data, snapshots = run_multiarmed_bandit_replenishment(kuairec_chosen,
