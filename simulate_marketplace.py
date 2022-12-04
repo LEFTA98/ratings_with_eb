@@ -197,7 +197,7 @@ if __name__ == "__main__":
                                                               rho=args.exit_rate,
                                                               mkt_size=args.market_size,
                                                               id_name = prior_names[i]) \
-                                                              for in in range(len(prior_names)))
+                                                              for i in range(len(prior_names)))
         
         result_data = list(result_data)
         print(len(result_data))
