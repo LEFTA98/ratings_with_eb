@@ -84,11 +84,13 @@ def run_multiarmed_bandit_replenishment(chosen_df,
     remaining_vids = set(videos).difference(set(curr_vids))
 
     helper = ProductHelper(product_data, curr_vids, list(curr_vids), priors_dict)
+    market_history = []
 
     for t in range(timesteps):
         if (t+1) % (timesteps//10) == 0:
             print(f'{t+1}/{timesteps}')
             
+        market_history.append(copy.deepcopy(helper.mkt_ids))
         latest_sims = np.array([item[-1] for item in helper.market])
         successes, failures = latest_sims[:,0], latest_sims[:,1]
         actions = range(mkt_size)
@@ -140,7 +142,7 @@ def run_multiarmed_bandit_replenishment(chosen_df,
         for k in list(snapshot_dict.keys())[:]:
             snapshot_dict[(k, id_name)] = snapshot_dict.pop(k)
             
-    return helper.universe, snapshot_dict
+    return helper.universe, snapshot_dict, np.array(market_history)
 
 def setup_data(num_samples=100):
     # setup and transform the data
@@ -177,7 +179,7 @@ if __name__ == "__main__":
         prior_names.append(np.round(a, 2))
         
     if args.mode=='test':
-        data, snapshots = run_multiarmed_bandit_replenishment(kuairec_chosen,
+        data, snapshots, market_histories = run_multiarmed_bandit_replenishment(kuairec_chosen,
                                                               sampled_videos,
                                                               prior_settings[0],
                                                               ts_action,
@@ -187,6 +189,7 @@ if __name__ == "__main__":
                                                               id_name = prior_names[0])
         np.save(f'sims/sim_data_alpha_{prior_names[0]}.npy', data)
         np.save(f'sims/sim_snapshots_alpha_{prior_names[0]}.npy', snapshots)
+        np.save(f'sims/market_id_data_{prior_names[0]}.npy', market_histories)
     else:
         parallel = Parallel(n_jobs=11, verbose=10)
         result_data = parallel(delayed(run_multiarmed_bandit_replenishment)(kuairec_chosen,
@@ -202,8 +205,11 @@ if __name__ == "__main__":
         result_data = list(result_data)
         print(len(result_data))
         for i in range(len(result_data)):
-            data, snapshots = result_data[i]
+            data, snapshots, market_histories = result_data[i]
             np.save(f'sims/sim_data_alpha_{prior_names[i]}.npy', data)
-            np.save(f'sims/sim_snapshots_alpha_{prior_names[i]}.npy', snapshots)            
+            np.save(f'sims/sim_snapshots_alpha_{prior_names[i]}.npy', snapshots)
+            np.save(f'sims/market_id_data_{prior_names[i]}.npy', market_histories)
     
+    
+    print(f'saved results for prior values a={PRIOR_A}, b={PRIOR_B} to sims folder.')
         
