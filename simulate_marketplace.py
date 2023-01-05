@@ -187,9 +187,9 @@ if __name__ == "__main__":
                                                               rho=args.exit_rate,
                                                               mkt_size=args.market_size,
                                                               id_name = prior_names[0])
-        np.save(f'sims/sim_data_alpha_{prior_names[0]}.npy', data)
-        np.save(f'sims/sim_snapshots_alpha_{prior_names[0]}.npy', snapshots)
-        np.save(f'sims/market_id_data_{prior_names[0]}.npy', market_histories)
+        np.save(f'sims_standard/sim_data_alpha_{prior_names[0]}.npy', data)
+        np.save(f'sims_standard/sim_snapshots_alpha_{prior_names[0]}.npy', snapshots)
+        np.save(f'sims_standard/market_id_data_{prior_names[0]}.npy', market_histories)
     else:
         parallel = Parallel(n_jobs=11, verbose=10)
         result_data = parallel(delayed(run_multiarmed_bandit_replenishment)(kuairec_chosen,
@@ -206,10 +206,10 @@ if __name__ == "__main__":
         print(len(result_data))
         for i in range(len(result_data)):
             data, snapshots, market_histories = result_data[i]
-            np.save(f'sims/sim_data_alpha_{prior_names[i]}.npy', data)
-            np.save(f'sims/sim_snapshots_alpha_{prior_names[i]}.npy', snapshots)
-            np.save(f'sims/market_id_data_{prior_names[i]}.npy', market_histories)
+            np.save(f'sims_standard/sim_data_alpha_{prior_names[i]}.npy', data)
+            np.save(f'sims_standard/sim_snapshots_alpha_{prior_names[i]}.npy', snapshots)
+            np.save(f'sims_standard/market_id_data_{prior_names[i]}.npy', market_histories)
     
     
-    print(f'saved results for prior values a={PRIOR_A}, b={PRIOR_B} to sims folder.')
+    print(f'saved results for prior values a={PRIOR_A}, b={PRIOR_B} to sims_standard folder.')
         
