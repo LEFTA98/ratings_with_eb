@@ -16,8 +16,8 @@ from joblib import Parallel, delayed
 from sklearn.model_selection import train_test_split
 from scipy.stats import beta
 
-PRIOR_A = 14.270965891341989
-PRIOR_B = 5.916156493565227
+PRIOR_A = 1.4270965891341989
+PRIOR_B = 0.5916156493565227
 
 class ProductHelper:
     """Class for helping keep track of all the products we have."""
@@ -206,10 +206,10 @@ if __name__ == "__main__":
         print(len(result_data))
         for i in range(len(result_data)):
             data, snapshots, market_histories = result_data[i]
-            np.save(f'sims_standard/sim_data_alpha_{prior_names[i]}.npy', data)
-            np.save(f'sims_standard/sim_snapshots_alpha_{prior_names[i]}.npy', snapshots)
-            np.save(f'sims_standard/market_id_data_{prior_names[i]}.npy', market_histories)
+            np.save(f'sims_opt/sim_data_alpha_{prior_names[i]}.npy', data)
+            np.save(f'sims_opt/sim_snapshots_alpha_{prior_names[i]}.npy', snapshots)
+            np.save(f'sims_opt/market_id_data_{prior_names[i]}.npy', market_histories)
     
     
-    print(f'saved results for prior values a={PRIOR_A}, b={PRIOR_B} to sims_standard folder.')
+    print(f'saved results for prior values a={PRIOR_A}, b={PRIOR_B} to sims_opt folder.')
         
