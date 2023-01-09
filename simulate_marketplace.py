@@ -16,8 +16,8 @@ from joblib import Parallel, delayed
 from sklearn.model_selection import train_test_split
 from scipy.stats import beta
 
-PRIOR_A = 10
-PRIOR_B = 10
+PRIOR_A = 0.591616
+PRIOR_B = 1.427097
 
 class ProductHelper:
     """Class for helping keep track of all the products we have."""
@@ -97,6 +97,7 @@ def run_multiarmed_bandit_replenishment(chosen_df,
         for m in range(num_users):
             a = sampling_action(actions, successes, failures)
             chosen_action_global_index = videos.index(helper.mkt_ids[a])
+            market_history[-1].append(copy.deepcopy(helper.mkt_ids[a]))
             like = sample_chosen_df(videos, chosen_df, chosen_action_global_index)
 
             # update prior
