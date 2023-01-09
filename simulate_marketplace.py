@@ -16,8 +16,8 @@ from joblib import Parallel, delayed
 from sklearn.model_selection import train_test_split
 from scipy.stats import beta
 
-PRIOR_A = 0.591616
-PRIOR_B = 1.427097
+PRIOR_A = 14.270966
+PRIOR_B = 5.916156
 
 class ProductHelper:
     """Class for helping keep track of all the products we have."""
@@ -188,9 +188,9 @@ if __name__ == "__main__":
                                                               rho=args.exit_rate,
                                                               mkt_size=args.market_size,
                                                               id_name = prior_names[0])
-        np.save(f'sims_pessimistic/sim_data_alpha_{prior_names[0]}.npy', data)
-        np.save(f'sims_pessimistic/sim_snapshots_alpha_{prior_names[0]}.npy', snapshots)
-        np.save(f'sims_pessimistic/market_id_data_{prior_names[0]}.npy', market_histories)
+        np.save(f'sims_standard/sim_data_alpha_{prior_names[0]}.npy', data)
+        np.save(f'sims_standard/sim_snapshots_alpha_{prior_names[0]}.npy', snapshots)
+        np.save(f'sims_standard/market_id_data_{prior_names[0]}.npy', market_histories)
     else:
         parallel = Parallel(n_jobs=11, verbose=10)
         result_data = parallel(delayed(run_multiarmed_bandit_replenishment)(kuairec_chosen,
@@ -207,10 +207,10 @@ if __name__ == "__main__":
         print(len(result_data))
         for i in range(len(result_data)):
             data, snapshots, market_histories = result_data[i]
-            np.save(f'sims_pessimistic/sim_data_alpha_{prior_names[i]}.npy', data)
-            np.save(f'sims_pessimistic/sim_snapshots_alpha_{prior_names[i]}.npy', snapshots)
-            np.save(f'sims_pessimistic/market_id_data_{prior_names[i]}.npy', market_histories)
+            np.save(f'sims_standard/sim_data_alpha_{prior_names[i]}.npy', data)
+            np.save(f'sims_standard/sim_snapshots_alpha_{prior_names[i]}.npy', snapshots)
+            np.save(f'sims_standard/market_id_data_{prior_names[i]}.npy', market_histories)
     
     
-    print(f'saved results for prior values a={PRIOR_A}, b={PRIOR_B} to sims_pessimistic folder.')
+    print(f'saved results for prior values a={PRIOR_A}, b={PRIOR_B} to sims_standard folder.')
         
