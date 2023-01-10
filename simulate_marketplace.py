@@ -16,8 +16,8 @@ from joblib import Parallel, delayed
 from sklearn.model_selection import train_test_split
 from scipy.stats import beta
 
-PRIOR_A = 14.270966
-PRIOR_B = 5.916156
+PRIOR_A = 19
+PRIOR_B = 1
 
 class ProductHelper:
     """Class for helping keep track of all the products we have."""
@@ -179,6 +179,8 @@ if __name__ == "__main__":
         prior_settings.append(curr_prior)
         prior_names.append(np.round(a, 2))
         
+    folder_name = 'sims_superopt'
+        
     if args.mode=='test':
         data, snapshots, market_histories = run_multiarmed_bandit_replenishment(kuairec_chosen,
                                                               sampled_videos,
@@ -188,9 +190,9 @@ if __name__ == "__main__":
                                                               rho=args.exit_rate,
                                                               mkt_size=args.market_size,
                                                               id_name = prior_names[0])
-        np.save(f'sims_standard/sim_data_alpha_{prior_names[0]}.npy', data)
-        np.save(f'sims_standard/sim_snapshots_alpha_{prior_names[0]}.npy', snapshots)
-        np.save(f'sims_standard/market_id_data_{prior_names[0]}.npy', market_histories)
+        np.save(f'{folder_name}/sim_data_alpha_{prior_names[0]}.npy', data)
+        np.save(f'{folder_name}/sim_snapshots_alpha_{prior_names[0]}.npy', snapshots)
+        np.save(f'{folder_name}/market_id_data_{prior_names[0]}.npy', market_histories)
     else:
         parallel = Parallel(n_jobs=11, verbose=10)
         result_data = parallel(delayed(run_multiarmed_bandit_replenishment)(kuairec_chosen,
@@ -207,10 +209,10 @@ if __name__ == "__main__":
         print(len(result_data))
         for i in range(len(result_data)):
             data, snapshots, market_histories = result_data[i]
-            np.save(f'sims_standard/sim_data_alpha_{prior_names[i]}.npy', data)
-            np.save(f'sims_standard/sim_snapshots_alpha_{prior_names[i]}.npy', snapshots)
-            np.save(f'sims_standard/market_id_data_{prior_names[i]}.npy', market_histories)
+            np.save(f'{folder_name}/sim_data_alpha_{prior_names[i]}.npy', data)
+            np.save(f'{folder_name}/sim_snapshots_alpha_{prior_names[i]}.npy', snapshots)
+            np.save(f'{folder_name}/market_id_data_{prior_names[i]}.npy', market_histories)
     
     
-    print(f'saved results for prior values a={PRIOR_A}, b={PRIOR_B} to sims_standard folder.')
+    print(f'saved results for prior values a={PRIOR_A}, b={PRIOR_B} to {folder_name} folder.')
         
