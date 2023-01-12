@@ -16,8 +16,8 @@ from joblib import Parallel, delayed
 from sklearn.model_selection import train_test_split
 from scipy.stats import beta
 
-PRIOR_A = 19
-PRIOR_B = 1
+PRIOR_A = 14.270965891341989
+PRIOR_B = 5.916156493565227
 
 class ProductHelper:
     """Class for helping keep track of all the products we have."""
