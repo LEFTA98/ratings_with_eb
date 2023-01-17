@@ -46,19 +46,28 @@ class ProductHelper:
         self.mkt_ids[old_idx] = new_id
         self.market[old_idx] = np.array([copy.deepcopy(self.priors[new_id])])
 
-def random_argmax(alist):
+def random_argmax(alist, rng=None):
+    if not rng:
+        rng = np.random.default_rng()
+        
     maxval = max(alist)
     argmax = [idx for idx, val in enumerate(alist) if val == maxval]
-    return np.random.choice(argmax)
+    return rng.choice(argmax)
 
-def ts_action(actions, num_success, num_failure):
-    p_hat = [np.random.beta(num_success[a],num_failure[a]) for a in actions]
-    a = random_argmax(p_hat)
+def ts_action(actions, num_success, num_failure, rng=None):
+    if not rng:
+        rng = np.random.default_rng()
+        
+    p_hat = [rng.beta(num_success[a],num_failure[a]) for a in actions]
+    a = random_argmax(p_hat, rng)
     return a
 
-def sample_chosen_df(videos, chosen_df, action_index):
+def sample_chosen_df(videos, chosen_df, action_index, rng=None):
+    if not rng:
+        rng = np.random.default_rng()
+        
     vid = videos[action_index]
-    seen_like = chosen_df[chosen_df['video_id']==vid].sample(1).iloc[0]['liked']
+    seen_like = chosen_df[chosen_df['video_id']==vid].sample(1, random_state=rng).iloc[0]['liked']
     return seen_like
 
 def run_multiarmed_bandit_replenishment(chosen_df,
@@ -71,8 +80,10 @@ def run_multiarmed_bandit_replenishment(chosen_df,
                                         num_users=1,
                                         snapshot_start=None,
                                         snapshotting_prob=0.001,
+                                        seed=None,
                                         id_name=None):
     print(f'simulation {id_name} beginning...')
+    rng=np.random.default_rng(seed)
     if not snapshot_start:
         snapshot_start = timesteps//5
     product_data = dict(zip(videos, [[] for _ in range(len(videos))]))
@@ -80,7 +91,7 @@ def run_multiarmed_bandit_replenishment(chosen_df,
     snapshot_dict = dict()
     snapshot_num = 1
             
-    curr_vids = np.array(list(np.random.choice(videos, mkt_size, replace=False)))
+    curr_vids = np.array(list(rng.choice(videos, mkt_size, replace=False)))
     remaining_vids = set(videos).difference(set(curr_vids))
 
     helper = ProductHelper(product_data, curr_vids, list(curr_vids), priors_dict)
@@ -95,17 +106,17 @@ def run_multiarmed_bandit_replenishment(chosen_df,
         successes, failures = latest_sims[:,0], latest_sims[:,1]
         actions = range(mkt_size)
         for m in range(num_users):
-            a = sampling_action(actions, successes, failures)
+            a = sampling_action(actions, successes, failures, rng)
             chosen_action_global_index = videos.index(helper.mkt_ids[a])
             market_history[-1].append(copy.deepcopy(helper.mkt_ids[a]))
-            like = sample_chosen_df(videos, chosen_df, chosen_action_global_index)
+            like = sample_chosen_df(videos, chosen_df, chosen_action_global_index, rng)
 
             # update prior
             helper.pull_arm_update_market(a, like)
 
         # replenish the indices
-        flips = np.random.binomial(1, rho, mkt_size)
-        draws = np.random.choice(list(remaining_vids), mkt_size, replace=False)
+        flips = rng.binomial(1, rho, mkt_size)
+        draws = rng.choice(list(remaining_vids), mkt_size, replace=False)
 
         replenishments = flips * draws
         replaced = flips * helper.mkt_ids
@@ -127,7 +138,7 @@ def run_multiarmed_bandit_replenishment(chosen_df,
         for old,new in swapped_pairs:
             helper.replace_item(old, new)
             
-        if t >= snapshot_start and np.random.binomial(1, snapshotting_prob) > 0:
+        if t >= snapshot_start and rng.binomial(1, snapshotting_prob) > 0:
             snapshot_dict[snapshot_num] = (copy.deepcopy(helper.mkt_ids), copy.deepcopy(helper.market))
             snapshot_num += 1
             
@@ -179,7 +190,7 @@ if __name__ == "__main__":
         prior_settings.append(curr_prior)
         prior_names.append(np.round(a, 2))
         
-    folder_name = 'sims_superopt'
+    folder_name = 'test_sim'
         
     if args.mode=='test':
         data, snapshots, market_histories = run_multiarmed_bandit_replenishment(kuairec_chosen,
@@ -189,6 +200,7 @@ if __name__ == "__main__":
                                                               timesteps=args.timestep,
                                                               rho=args.exit_rate,
                                                               mkt_size=args.market_size,
+                                                              seed=1729,
                                                               id_name = prior_names[0])
         np.save(f'{folder_name}/sim_data_alpha_{prior_names[0]}.npy', data)
         np.save(f'{folder_name}/sim_snapshots_alpha_{prior_names[0]}.npy', snapshots)
@@ -202,6 +214,7 @@ if __name__ == "__main__":
                                                               timesteps=args.timestep,
                                                               rho=args.exit_rate,
                                                               mkt_size=args.market_size,
+                                                              seed=1729,
                                                               id_name = prior_names[i]) \
                                                               for i in range(len(prior_names)))
         
