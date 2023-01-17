@@ -106,10 +106,10 @@ def run_multiarmed_bandit_replenishment(chosen_df,
         successes, failures = latest_sims[:,0], latest_sims[:,1]
         actions = range(mkt_size)
         for m in range(num_users):
-            a = sampling_action(actions, successes, failures, rng)
+            a = sampling_action(actions, successes, failures, rng=None)
             chosen_action_global_index = videos.index(helper.mkt_ids[a])
             market_history[-1].append(copy.deepcopy(helper.mkt_ids[a]))
-            like = sample_chosen_df(videos, chosen_df, chosen_action_global_index, rng)
+            like = sample_chosen_df(videos, chosen_df, chosen_action_global_index, rng=None)
 
             # update prior
             helper.pull_arm_update_market(a, like)
