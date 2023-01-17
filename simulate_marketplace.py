@@ -190,7 +190,7 @@ if __name__ == "__main__":
         prior_settings.append(curr_prior)
         prior_names.append(np.round(a, 2))
         
-    folder_name = 'test_sim'
+    folder_name = 'sims_5_market'
         
     if args.mode=='test':
         data, snapshots, market_histories = run_multiarmed_bandit_replenishment(kuairec_chosen,
