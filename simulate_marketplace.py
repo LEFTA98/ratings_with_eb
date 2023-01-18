@@ -16,8 +16,8 @@ from joblib import Parallel, delayed
 from sklearn.model_selection import train_test_split
 from scipy.stats import beta
 
-PRIOR_A = 14.270965891341989
-PRIOR_B = 5.916156493565227
+PRIOR_A = 5.916156493565227
+PRIOR_B = 14.270965891341989
 
 class ProductHelper:
     """Class for helping keep track of all the products we have."""
@@ -190,7 +190,7 @@ if __name__ == "__main__":
         prior_settings.append(curr_prior)
         prior_names.append(np.round(a, 2))
         
-    folder_name = 'sims_5_market'
+    folder_name = 'sims_5_market_pessimistic'
         
     if args.mode=='test':
         data, snapshots, market_histories = run_multiarmed_bandit_replenishment(kuairec_chosen,
