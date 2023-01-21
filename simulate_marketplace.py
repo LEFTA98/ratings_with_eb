@@ -16,8 +16,8 @@ from joblib import Parallel, delayed
 from sklearn.model_selection import train_test_split
 from scipy.stats import beta
 
-PRIOR_A = 300
-PRIOR_B = 300
+PRIOR_A = 1
+PRIOR_B = 1
 
 class ProductHelper:
     """Class for helping keep track of all the products we have."""
@@ -31,6 +31,8 @@ class ProductHelper:
     def pull_arm(self, action, like):
         arr = self.market[action]
         latest_action = copy.deepcopy(arr[-1])
+#         print(latest_action)
+#         print(latest_action.dtype)
         latest_action += np.array([like, 1-like])
         self.market[action] = np.append(arr, [latest_action], axis=0)
         
@@ -169,6 +171,22 @@ def setup_data(num_samples=100):
     
     return sampled_videos, kuairec_chosen
 
+def upsample(datapath, num_samples, custom_percentiles=None):
+    dataset = pd.read_csv(datapath)
+    
+    if not custom_percentiles:
+        percentiles = np.linspace(0,100,num_samples+1) / 100
+    else:
+        percentiles = np.array(custom_percentiles) / 100
+    
+    df = dataset[['video_id', 'like_ratio']].drop_duplicates().sort_values(by='like_ratio')
+    percentiles = np.round(percentiles * len(df)).astype(int)
+    percentiles[-1] -= 1 #100th percentile doesn't exist so bump down by 1
+    sampled_videos = list(df.iloc[percentiles]['video_id'])
+    chosen_df = dataset[dataset['video_id'].isin(sampled_videos)]
+    
+    return sampled_videos, chosen_df
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generate simulation outputs for online marketplace experiment.')
     parser.add_argument('--mode', choices=['test', 'full'], default='full')
@@ -176,21 +194,23 @@ if __name__ == "__main__":
     parser.add_argument('--exit_rate', type=float, default=0.01)
     parser.add_argument('--market_size', type=int, default=10)
     parser.add_argument('--universe_size', type=int, default=100)
+    parser.add_argument('--dataset',type=str, default='kuairec_test.csv')
     args = parser.parse_args()
     
-    sampled_videos, kuairec_chosen = setup_data(args.universe_size)
+    # sampled_videos, kuairec_chosen = setup_data(args.universe_size)
+    sampled_videos, kuairec_chosen = upsample(datapath=args.dataset, num_samples=args.universe_size)
     
     uninformed_priors = np.ones(len(sampled_videos)*2).reshape(len(sampled_videos),2)
     eb_priors = np.array([[PRIOR_A]*len(sampled_videos),[PRIOR_B]*len(sampled_videos)]).T
     
     prior_settings = []
     prior_names = []
-    for a in np.linspace(0,1,11):
-        curr_prior = (1-a)*uninformed_priors + a*eb_priors
+    for a in np.array([1,2,3,4,5,10,20,50,100,200,500,1000,10000]).astype(float):
+        curr_prior = a*eb_priors
         prior_settings.append(curr_prior)
         prior_names.append(np.round(a, 2))
         
-    folder_name = 'sims_5_market_strong'
+    folder_name = 'EC_uniform_5-25'
         
     if args.mode=='test':
         data, snapshots, market_histories = run_multiarmed_bandit_replenishment(kuairec_chosen,
