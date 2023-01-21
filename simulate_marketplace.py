@@ -203,14 +203,15 @@ if __name__ == "__main__":
     uninformed_priors = np.ones(len(sampled_videos)*2).reshape(len(sampled_videos),2)
     eb_priors = np.array([[PRIOR_A]*len(sampled_videos),[PRIOR_B]*len(sampled_videos)]).T
     
+    folder_name = 'EC_kuairec_5-25'
+    etas_to_test = [1,2,3,4,5,10,20,50,100,200,500,1000,10000]
+    
     prior_settings = []
     prior_names = []
-    for a in np.array([1,2,3,4,5,10,20,50,100,200,500,1000,10000]).astype(float):
+    for a in np.array(etas_to_test).astype(float):
         curr_prior = a*eb_priors
         prior_settings.append(curr_prior)
         prior_names.append(np.round(a, 2))
-        
-    folder_name = 'EC_uniform_5-25'
         
     if args.mode=='test':
         data, snapshots, market_histories = run_multiarmed_bandit_replenishment(kuairec_chosen,
@@ -226,7 +227,7 @@ if __name__ == "__main__":
         np.save(f'{folder_name}/sim_snapshots_alpha_{prior_names[0]}.npy', snapshots)
         np.save(f'{folder_name}/market_id_data_{prior_names[0]}.npy', market_histories)
     else:
-        parallel = Parallel(n_jobs=11, verbose=10)
+        parallel = Parallel(n_jobs=len(etas_to_test), verbose=10)
         result_data = parallel(delayed(run_multiarmed_bandit_replenishment)(kuairec_chosen,
                                                               sampled_videos,
                                                               prior_settings[i],
