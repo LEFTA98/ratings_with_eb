@@ -98,10 +98,13 @@ def run_multiarmed_bandit_replenishment(chosen_df,
 
     helper = ProductHelper(product_data, curr_vids, list(curr_vids), priors_dict)
     market_history = []
+    
+    marker = 0
 
     for t in range(timesteps):
         if (t+1) % (timesteps//10) == 0:
             print(f'{t+1}/{timesteps}')
+            
             
         market_history.append(copy.deepcopy(helper.mkt_ids))
         latest_sims = np.array([item[-1] for item in helper.market])
@@ -118,7 +121,8 @@ def run_multiarmed_bandit_replenishment(chosen_df,
 
         # replenish the indices
         flips = rng.binomial(1, rho, mkt_size)
-        draws = rng.choice(list(remaining_vids), mkt_size, replace=False)
+        draws = rng.choice(list(remaining_vids) + 
+                           [helper.mkt_ids[i] for i in range(len(helper.mkt_ids)) if flips[i]==1], mkt_size,replace=False)
 
         replenishments = flips * draws
         replaced = flips * helper.mkt_ids
@@ -204,7 +208,8 @@ if __name__ == "__main__":
     eb_priors = np.array([[PRIOR_A]*len(sampled_videos),[PRIOR_B]*len(sampled_videos)]).T
     
     folder_name = 'EC_kuairec_5-25'
-    etas_to_test = [1,2,3,4,5,10,20,50,100,200,500,1000,10000]
+    etas_to_test = [0.001, 1,2,3,4,5,10,20,50,100,200,500,1000,10000, 1e5, 1e6, 1e7]
+    # etas_to_test = [0.001, 1e5, 1e6, 1e7]
     
     prior_settings = []
     prior_names = []
