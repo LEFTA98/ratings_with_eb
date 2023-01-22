@@ -16,8 +16,8 @@ from joblib import Parallel, delayed
 from sklearn.model_selection import train_test_split
 from scipy.stats import beta
 
-PRIOR_A = 1
-PRIOR_B = 1
+PRIOR_A = 1.4270965891341989
+PRIOR_B = 0.5916156493565227
 
 class ProductHelper:
     """Class for helping keep track of all the products we have."""
@@ -181,7 +181,7 @@ def upsample(datapath, num_samples, custom_percentiles=None):
     
     df = dataset[['video_id', 'like_ratio']].drop_duplicates().sort_values(by='like_ratio')
     percentiles = np.round(percentiles * len(df)).astype(int)
-    percentiles[-1] -= 1 #100th percentile doesn't exist so bump down by 1
+    percentiles = percentiles[:-1] #100th percentile doesn't exist omit it
     sampled_videos = list(df.iloc[percentiles]['video_id'])
     chosen_df = dataset[dataset['video_id'].isin(sampled_videos)]
     
